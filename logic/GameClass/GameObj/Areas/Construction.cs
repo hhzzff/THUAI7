@@ -10,7 +10,7 @@ public class Construction(XY initPos)
 {
     public AtomicLong TeamID { get; } = new(long.MaxValue);
     public InVariableRange<long> HP { get; } = new(0, GameData.CommunityHP);
-    public override bool IsRigid => true;
+    public override bool IsRigid(bool args = false) => true;
     public override ShapeType Shape => ShapeType.Square;
 
     private readonly object lockOfConstructionType = new();
@@ -63,17 +63,17 @@ public class Construction(XY initPos)
     }
     public bool BeAttacked(Bullet bullet)
     {
+        var previousActivated = IsActivated.Get();
         if (bullet!.Parent!.TeamID != TeamID)
         {
             long subHP = bullet.AP;
             HP.SubPositiveV(subHP);
         }
-        if (HP == 0)
+        if (HP.IsBelowMaxTimes(0.5))
         {
-            lock (lockOfConstructionType)
-                constructionType = ConstructionType.Null;
+            IsActivated.Set(false);
         }
-        return HP.IsBelowMaxTimes(0.5);
+        return HP.IsBelowMaxTimes(0.5) && previousActivated;
     }
     public void AddConstructNum(int add = 1)
     {

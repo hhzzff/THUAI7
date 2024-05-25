@@ -24,9 +24,7 @@ class Communication
 {
 public:
     Communication(std::string sIP, std::string sPort);
-    ~Communication()
-    {
-    }
+    ~Communication() = default;
     bool TryConnection(int32_t playerID, int32_t teamID);
     protobuf::MessageToClient GetMessage2Client();
     void AddPlayer(int32_t playerID, int32_t teamID, THUAI7::ShipType ShipType);
@@ -35,6 +33,8 @@ public:
     bool Move(int32_t playerID, int32_t teamID, int64_t time, double angle);
     bool Recover(int32_t playerID, int64_t recover, int32_t teamID);
     bool Produce(int32_t playerID, int32_t teamID);
+    bool RepairWormhole(int32_t playerID, int32_t teamID);
+    bool RepairHome(int32_t playerID, int32_t teamID);
     bool Rebuild(int32_t playerID, int32_t teamID, THUAI7::ConstructionType constructionType);
     bool Construct(int32_t playerID, int32_t teamID, THUAI7::ConstructionType constructionType);
     bool Attack(int32_t playerID, int32_t teamID, double angle);
@@ -50,8 +50,8 @@ private:
     protobuf::MessageToClient message2Client;
     std::mutex mtxMessage;
     std::mutex mtxLimit;
-    int32_t counter;
-    int32_t counterMove;
+    int32_t counter{};
+    int32_t counterMove{};
     static constexpr const int32_t limit = 50;
     static constexpr const int32_t moveLimit = 10;
     std::condition_variable cvMessage;

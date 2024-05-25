@@ -46,7 +46,8 @@ namespace Gaming
                             BulletBomb((Bullet)obj, null);
                         }
                         obj.CanMove.SetROri(false);
-                    }
+                    },
+                    collideWithWormhole: true
                 );
                 this.game = game;
             }
@@ -89,16 +90,25 @@ namespace Gaming
                     case GameObjType.Construction:
                         var constructionType = ((Construction)objBeingShot).ConstructionType;
                         var flag = ((Construction)objBeingShot).BeAttacked(bullet);
-                        if (constructionType == ConstructionType.Community && flag)
-                            game.RemoveBirthPoint(
-                                ((Construction)objBeingShot).TeamID,
-                                ((Construction)objBeingShot).Position);
-                        else if (constructionType == ConstructionType.Factory && flag)
-                            game.RemoveFactory(((Construction)objBeingShot).TeamID);
+                        if (flag)
+                        {
+                            ((Construction)objBeingShot).IsActivated.SetROri(false);
+                            if (constructionType == ConstructionType.Community)
+                            {
+                                game.RemoveBirthPoint(
+                                    ((Construction)objBeingShot).TeamID,
+                                    ((Construction)objBeingShot).Position);
+                            }
+                            else if (constructionType == ConstructionType.Factory)
+                            {
+                                game.RemoveFactory(((Construction)objBeingShot).TeamID);
+                            }
+                        }
                         break;
                     case GameObjType.Wormhole:
+                        var previousHP = ((WormholeCell)objBeingShot).Wormhole.HP.GetValue();
                         ((WormholeCell)objBeingShot).Wormhole.BeAttacked(bullet);
-                        if (((WormholeCell)objBeingShot).Wormhole.HP < GameData.WormholeHP / 2)
+                        if (previousHP >= GameData.WormholeHP / 2 && ((WormholeCell)objBeingShot).Wormhole.HP < GameData.WormholeHP / 2)
                         {
                             var shipList = gameMap.ShipInTheList(((WormholeCell)objBeingShot).Wormhole.Cells);
                             if (shipList != null)
